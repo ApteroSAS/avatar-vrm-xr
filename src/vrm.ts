@@ -20,8 +20,9 @@ AFRAME.registerComponent("vrm",{
         if(modelChanged){
             //clean previous model
             //load new model
-            this.avatar = await this.loadModel(data.src);
+
             this.removeModel()
+            this.avatar = await this.loadModel(data.src);
         }
     },
     tick() {
@@ -38,23 +39,19 @@ AFRAME.registerComponent("vrm",{
         console.log("play");
     },
     async loadModel(path:string):Promise<VRM>{
+        if(!path || path == "") return <VRM><unknown> undefined;
         const object3d = this.el.object3D;
         return new Promise((resolve,reject)=>{
             this.loader.load(path,(gltf:GLTF)=>{
                     VRM.from(gltf).then(
                         ( vrm:VRM ) => {
-                            // add the loaded vrm to the scene
                             object3d.add( vrm.scene );
-                            // deal with vrm features
-
-
-
-
                             resolve(vrm);
                         }
                     )
                 },
                 (e)=>{
+                    //Handle loading events
                     //console.log(e)
                 },
                 (e)=>{
@@ -63,10 +60,12 @@ AFRAME.registerComponent("vrm",{
                 }
             )
         })
-
     },
     async removeModel(){
+        if(!this.avatar) return;
         console.log(this.el.object3D, this.avatar);
+        this.el.object3D.remove(this.avatar.scene);
+        this.avatar.dispose();
     },
     avatar: undefined as unknown as VRM,
     loader: new GLTFLoader(),
