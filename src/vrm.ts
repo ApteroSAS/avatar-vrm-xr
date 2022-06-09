@@ -1,12 +1,13 @@
 
 require("aframe")
-import {VRM} from "@pixiv/three-vrm";
+import {VRM,VRMDebug} from "@pixiv/three-vrm";
 import {GLTF,GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 
 AFRAME.registerComponent("vrm",{
     schema: {
-        src: {type:"model"}
+        src: {type:"model"},
+        debug:{default:false}
     },
     init() {
         const sceneEl = this.el.sceneEl;
@@ -16,13 +17,14 @@ AFRAME.registerComponent("vrm",{
         const data = this.data;
         const object3d = this.el.object3D;
         const modelChanged = data.src != oldData.src;
+        const debugChanged = data.debug != oldData.debug;
         console.log("update",data,oldData,modelChanged);
-        if(modelChanged){
+
+        if(modelChanged || debugChanged){
             //clean previous model
             //load new model
-
             this.removeModel()
-            this.avatar = await this.loadModel(data.src);
+            this.avatar = await this.loadModel(data.src, data.debug);
         }
     },
     tick() {
@@ -38,21 +40,23 @@ AFRAME.registerComponent("vrm",{
     play() {
         console.log("play");
     },
-    async loadModel(path:string):Promise<VRM>{
+    async loadModel(path:string,debug:boolean=false):Promise<VRM>{
         if(!path || path == "") return <VRM><unknown> undefined;
+        const thisVRM = debug? VRMDebug : VRM;
         const object3d = this.el.object3D;
         return new Promise((resolve,reject)=>{
             this.loader.load(path,(gltf:GLTF)=>{
-                    VRM.from(gltf).then(
+                    thisVRM.from(gltf).then(
                         ( vrm:VRM ) => {
                             object3d.add( vrm.scene );
+
                             resolve(vrm);
                         }
                     )
                 },
                 (e)=>{
                     //Handle loading events
-                    //console.log(e)
+                    console.log( 'Loading model...', 100.0 * ( e.loaded / e.total ), '%' )
                 },
                 (e)=>{
                     console.log(e);

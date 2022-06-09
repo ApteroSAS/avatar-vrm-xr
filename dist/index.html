@@ -4,13 +4,13 @@
     <title>Empty project</title>
     <meta charset="utf-8">
     <script src="bundle.js"></script>
+    <script src="https://unpkg.com/aframe-orbit-controls@1.2.0/dist/aframe-orbit-controls.min.js"></script>
 </head>
 <body>
 <a-scene>
-    <a-entity id="stage" position="0 0 -3">
-        <a-entity vrm="src:./assets/AliciaSolid.vrm"></a-entity>
-        <a-plane rotation="-90 0 0" color="#65affa" scale="2 2 2"></a-plane>
-    </a-entity>
+    <a-entity vrm="src:./assets/AliciaSolid.vrm"></a-entity>
+    <a-plane rotation="-90 0 0" color="#65affa" scale="2 2 2"></a-plane>
+    <a-entity camera look-controls orbit-controls="target:0 1 0;initialPosition:0 1 -2"></a-entity>
 </a-scene>
 </body>
 </html>
