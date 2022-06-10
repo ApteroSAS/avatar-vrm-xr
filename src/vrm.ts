@@ -1,8 +1,13 @@
 
 require("aframe")
+import {Component} from "aframe";
 import {VRM,VRMDebug} from "@pixiv/three-vrm";
 import {GLTF,GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
+interface VRMComponent extends Component {
+    avatar:  VRM,
+    loader: GLTFLoader,
+}
 
 AFRAME.registerComponent("vrm",{
     schema: {
@@ -10,15 +15,15 @@ AFRAME.registerComponent("vrm",{
         debug:{default:false}
     },
     init() {
-        const sceneEl = this.el.sceneEl;
-        console.log("init", sceneEl?.object3D);
+        /*const sceneEl = this.el.sceneEl;
+        console.log("init", sceneEl?.object3D);*/
     },
     async update(oldData: any) {
         const data = this.data;
         const object3d = this.el.object3D;
         const modelChanged = data.src != oldData.src;
         const debugChanged = data.debug != oldData.debug;
-        console.log("update",data,oldData,modelChanged);
+        //console.log("update",data,oldData,modelChanged);
 
         if(modelChanged || debugChanged){
             //clean previous model
@@ -38,16 +43,17 @@ AFRAME.registerComponent("vrm",{
     },
     remove() {
         //remove model
-        console.log("remove");
+        //console.log("remove");
     },
     pause() {
-        console.log("pause");
+       // console.log("pause");
     },
     play() {
-        console.log("play");
+        //console.log("play");
     },
     async loadModel(path:string,debug:boolean=false):Promise<VRM>{
         if(!path || path == "") return <VRM><unknown> undefined;
+        const el = this.el;
         //test for the VRM environment to use
         const thisVRM = debug? VRMDebug : VRM;
         const object3d = this.el.object3D;
@@ -56,16 +62,19 @@ AFRAME.registerComponent("vrm",{
                     thisVRM.from(gltf).then(
                         ( vrm:VRM ) => {
                             object3d.add( vrm.scene );
+                            el.emit("loaded",vrm);
                             resolve(vrm);
                         }
                     )
                 },
                 (e)=>{
                     //Handle loading events
-                    console.log( 'Loading model...', 100.0 * ( e.loaded / e.total ), '%' )
+                    el.emit("loading",e);
+                   //console.log( 'Loading model...', 100.0 * ( e.loaded / e.total ), '%' )
                 },
                 (e)=>{
-                    console.log(e);
+                    el.emit("loading-error",e)
+                   // console.log(e);
                     reject(e);
                 }
             )
@@ -73,7 +82,7 @@ AFRAME.registerComponent("vrm",{
     },
     async removeModel(){
         if(!this.avatar) return;
-        console.log(this.el.object3D, this.avatar);
+        //console.log(this.el.object3D, this.avatar);
         this.el.object3D.remove(this.avatar.scene);
         this.avatar.dispose();
     },

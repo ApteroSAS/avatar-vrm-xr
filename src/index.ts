@@ -1,2 +1,3 @@
-require('./vrm')
 require('aframe')
+require('./vrm')
+require('./vrm-animation')
