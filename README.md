@@ -1,6 +1,23 @@
 # avatar-vrm-xr
 VRM avatar support for Aframe based on pixiv's threejs implementation.
-The project is intended for use in Axolotis, an Aframe compatible platform.
+
+##features
+(Alphabetical order)
+- [ ] Animation
+    - [ ] Mixamo Import
+- [ ] Blendshape
+    - [ ] facial expression
+    - [ ] realistic mouth distortion based on voice
+- [ ] Controls
+    - [ ] desktop style locomotion
+    - [ ] XR tracking
+        - [ ] head & hand + locomotion (for legs)
+        - [ ] full body tracking
+- [ ] Eye
+    - [ ] blinking
+    - [ ] look-at
+- [x] Loading avatar
+- [ ] Physics for dress and hair
 
 ## Building and running on localhost
 
