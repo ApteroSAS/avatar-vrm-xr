@@ -25,9 +25,15 @@ AFRAME.registerComponent("vrm",{
             //load new model
             this.removeModel()
             this.avatar = await this.loadModel(data.src, data.debug);
+            if(this.avatar){
+                console.log(this.avatar)
+            }
         }
     },
-    tick() {
+    tick(delta) {
+        if(this.avatar){
+            this.avatar.update(delta);
+        }
         //console.log("tick");
     },
     remove() {
@@ -42,6 +48,7 @@ AFRAME.registerComponent("vrm",{
     },
     async loadModel(path:string,debug:boolean=false):Promise<VRM>{
         if(!path || path == "") return <VRM><unknown> undefined;
+        //test for the VRM environment to use
         const thisVRM = debug? VRMDebug : VRM;
         const object3d = this.el.object3D;
         return new Promise((resolve,reject)=>{
@@ -49,7 +56,6 @@ AFRAME.registerComponent("vrm",{
                     thisVRM.from(gltf).then(
                         ( vrm:VRM ) => {
                             object3d.add( vrm.scene );
-
                             resolve(vrm);
                         }
                     )
