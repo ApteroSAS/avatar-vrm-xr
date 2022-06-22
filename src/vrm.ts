@@ -1,13 +1,19 @@
+import {Matrix4, Object3D, Quaternion, Vector3} from "three";
 
 require("aframe")
 import {Component} from "aframe";
-import {VRM,VRMDebug} from "@pixiv/three-vrm";
+import {VRM, VRMHumanBones, VRMLoaderPlugin, VRMUtils} from "@pixiv/three-vrm";
 import {GLTF,GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
+import {VRMHumanBoneName} from "@pixiv/three-vrm-core/types/humanoid/VRMHumanBoneName";
 
-interface VRMComponent extends Component {
+export interface VRMComponent extends Component {
     avatar:  VRM,
     loader: GLTFLoader,
 }
+
+
+
+
 
 AFRAME.registerComponent("vrm",{
     schema: {
@@ -15,6 +21,11 @@ AFRAME.registerComponent("vrm",{
         debug:{default:false}
     },
     init() {
+        this.loader.register( ( parser ) => {
+
+            return new VRMLoaderPlugin( parser );
+
+        } );
         /*const sceneEl = this.el.sceneEl;
         console.log("init", sceneEl?.object3D);*/
     },
@@ -30,8 +41,10 @@ AFRAME.registerComponent("vrm",{
             //load new model
             this.removeModel()
             this.avatar = await this.loadModel(data.src, data.debug);
-            if(this.avatar){
+            this.el.emit("loaded",this.avatar);
+            if(this.avatar != null){
                 console.log(this.avatar)
+
             }
         }
     },
@@ -43,6 +56,7 @@ AFRAME.registerComponent("vrm",{
     },
     remove() {
         //remove model
+        this.removeModel();
         //console.log("remove");
     },
     pause() {
@@ -55,17 +69,14 @@ AFRAME.registerComponent("vrm",{
         if(!path || path == "") return <VRM><unknown> undefined;
         const el = this.el;
         //test for the VRM environment to use
-        const thisVRM = debug? VRMDebug : VRM;
+
         const object3d = this.el.object3D;
         return new Promise((resolve,reject)=>{
             this.loader.load(path,(gltf:GLTF)=>{
-                    thisVRM.from(gltf).then(
-                        ( vrm:VRM ) => {
-                            object3d.add( vrm.scene );
-                            el.emit("loaded",vrm);
-                            resolve(vrm);
-                        }
-                    )
+                    const vrm = gltf.userData.vrm;
+                    object3d.add( vrm.scene );
+                    VRMUtils.rotateVRM0( vrm ); // 読み込んだモデルがVRM0.0の場合は回す
+                    resolve(vrm);
                 },
                 (e)=>{
                     //Handle loading events
@@ -84,7 +95,7 @@ AFRAME.registerComponent("vrm",{
         if(!this.avatar) return;
         //console.log(this.el.object3D, this.avatar);
         this.el.object3D.remove(this.avatar.scene);
-        this.avatar.dispose();
+        this.avatar = undefined as unknown as VRM;//.dispose();
     },
     avatar: undefined as unknown as VRM,
     loader: new GLTFLoader(),

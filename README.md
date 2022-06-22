@@ -1,10 +1,24 @@
 # avatar-vrm-xr
 VRM avatar support for Aframe based on pixiv's threejs implementation.
 
+## Usage
+````html
+<head>
+    <title>My A-frame Scene</title>
+    <meta charset="utf-8">
+    <script src="a-avatar-vrm.js"></script>
+</head>
+<body>
+<a-scene>
+    <a-entity vrm="src:./assets/avatar_VRM10.vrm;debug:true" vrm-animation="defaultAnimation:./assets/mixamo-animations/Male Locomotion Pack/idle.fbx"></a-entity>
+</a-scene>
+</body>
+````
+
 ##features
 (Alphabetical order)
-- [ ] Animation
-    - [ ] Mixamo Import
+- [x] Animation
+    - [x] Mixamo Import
 - [ ] Blendshape
     - [ ] facial expression
     - [ ] realistic mouth distortion based on voice
@@ -18,6 +32,7 @@ VRM avatar support for Aframe based on pixiv's threejs implementation.
     - [ ] look-at
 - [x] Loading avatar
 - [ ] Physics for dress and hair
+- [ ] Avatar LOD
 
 ## Building and running on localhost
 
