@@ -8,7 +8,26 @@
 </head>
 <body>
 <a-scene>
-    <a-entity vrm="src:./assets/avatar_VRM10.vrm;debug:true" vrm-animation="defaultAnimation:./assets/mixamo-animations/Male Locomotion Pack/idle.fbx"></a-entity>
+    <a-entity
+            vrm="src:./assets/avatar_VRM10.vrm;debug:true"
+            mixamo-2-vrm="animations:
+                ./assets/mixamo-animations/Male Locomotion Pack/idle.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/jump.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/left strafe.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/left strafe walk.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/left strafe walking.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/left turn.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/left turn 90.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/right strafe.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/right strafe walk.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/right strafe walking.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/right turn.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/right turn 90.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/running.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/walking.fbx,
+                ./assets/mixamo-animations/Male Locomotion Pack/xbot.fbx
+            "
+    ></a-entity>
     <a-plane rotation="-90 0 0" color="#65affa" scale="2 2 2"></a-plane>
     <a-entity camera look-controls orbit-controls="target:0 1 0;initialPosition:0 1 -2"></a-entity>
 </a-scene>

@@ -1,3 +1,3 @@
 require('aframe')
 require('./vrm')
-require('./vrm-animation')
+require('./mixamo-2-vrm')

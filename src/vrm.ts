@@ -17,8 +17,7 @@ export interface VRMComponent extends Component {
 
 AFRAME.registerComponent("vrm",{
     schema: {
-        src: {type:"model"},
-        debug:{default:false}
+        src: {type:"model"}
     },
     init() {
         this.loader.register( ( parser ) => {
@@ -31,20 +30,17 @@ AFRAME.registerComponent("vrm",{
     },
     async update(oldData: any) {
         const data = this.data;
-        const object3d = this.el.object3D;
         const modelChanged = data.src != oldData.src;
-        const debugChanged = data.debug != oldData.debug;
-        //console.log("update",data,oldData,modelChanged);
+        console.log("update",data,oldData,modelChanged);
 
-        if(modelChanged || debugChanged){
+        if(modelChanged){
             //clean previous model
             //load new model
             this.removeModel()
-            this.avatar = await this.loadModel(data.src, data.debug);
+            this.avatar = await this.loadModel(data.src);
             this.el.emit("loaded",this.avatar);
             if(this.avatar != null){
                 console.log(this.avatar)
-
             }
         }
     },
@@ -65,7 +61,7 @@ AFRAME.registerComponent("vrm",{
     play() {
         //console.log("play");
     },
-    async loadModel(path:string,debug:boolean=false):Promise<VRM>{
+    async loadModel(path:string):Promise<VRM>{
         if(!path || path == "") return <VRM><unknown> undefined;
         const el = this.el;
         //test for the VRM environment to use
@@ -95,7 +91,9 @@ AFRAME.registerComponent("vrm",{
         if(!this.avatar) return;
         //console.log(this.el.object3D, this.avatar);
         this.el.object3D.remove(this.avatar.scene);
-        this.avatar = undefined as unknown as VRM;//.dispose();
+        VRMUtils.deepDispose(this.avatar.scene);
+        this.avatar = undefined as unknown as VRM;//.dispose(
+        // );
     },
     avatar: undefined as unknown as VRM,
     loader: new GLTFLoader(),

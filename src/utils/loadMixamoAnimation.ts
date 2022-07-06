@@ -7,7 +7,7 @@ import {VRM, VRMHumanBoneName} from "@pixiv/three-vrm";
 import * as THREE from 'three';
 import {FBXLoader} from "three/examples/jsm/loaders/FBXLoader";
 import { mixamoVRMRigMap } from "./mixamo-VRM-rigmap"
-import {Quaternion} from "three";
+import {AnimationClip, Quaternion} from "three";
 
 /**
  * Charger les animations Mixamo, les ajuster et les renvoyer pour le VRM.
@@ -108,5 +108,10 @@ export function loadMixamoAnimation( url:string, vrm:VRM ) {
         } );
         //console.log(tracks[1])
         return new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
-    } );
+    } ).catch(
+        reason =>  {
+            //console.log(reason);
+            return undefined as unknown as AnimationClip;
+        }
+    );
 }

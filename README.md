@@ -10,15 +10,59 @@ VRM avatar support for Aframe based on pixiv's threejs implementation.
 </head>
 <body>
 <a-scene>
-    <a-entity vrm="src:./assets/avatar_VRM10.vrm;debug:true" vrm-animation="defaultAnimation:./assets/mixamo-animations/Male Locomotion Pack/idle.fbx"></a-entity>
+    <a-entity vrm="src:./assets/avatar_VRM10.vrm;debug:true"  mixamo-2-vrm="singleAnimation:./assets/mixamo-animations/Male Locomotion Pack/idle.fbx"></a-entity>
 </a-scene>
 </body>
 ````
+##components
 
-##features
+###vrm
+Load a vrm similarly as the gltf-model component
+
+####Properties
+| Property | Type  | Default |
+|----------|-------|---------|
+| src      | asset | ""      |
+
+####Events
+| name           | Details              |
+|----------------|----------------------|
+| loaded         | vrm object           |
+| loading        | progressEvent object |
+| loading-error  | errorEvent object    |
+
+####Accessing the VRM object through other components
+``````js
+AFRAME.registerComponent("vrm-logger",{
+    init(){
+        const vrmComponent =  this.el.components.vrm;
+        console.log("vrm : ", vrmComponent.avatar)
+    }
+})
+``````
+
+###mixamo-2-vrm
+Load mixamo animations as fbx, convert them to match the vrm skeleton and add them to the avatar's scene.
+
+####Properties
+| Property        | Type            | Default | required                             |
+|-----------------|-----------------|---------|--------------------------------------|
+| singleAnimation | asset           | ""        | false if **animations** is not []    |
+| animations      | array of assets | []        | false if **singleAnimation** is not "" |
+
+####Events
+
+| name                    | details                           |
+|-------------------------|-----------------------------------|
+| mixamo-animation-loaded | animation list from the vrm scene |
+
+
+
+##Roadmap
 (Alphabetical order)
 - [x] Animation
     - [x] Mixamo Import
+    - [ ] Animation mixer
 - [ ] Blendshape
     - [ ] facial expression
     - [ ] realistic mouth distortion based on voice
