@@ -1,4 +1,4 @@
-import {Matrix4, Object3D, Quaternion, Vector3} from "three";
+import {Group, Matrix4, Object3D, Quaternion, Vector3} from "three";
 
 require("aframe")
 import {Component} from "aframe";
@@ -17,7 +17,8 @@ export interface VRMComponent extends Component {
 
 AFRAME.registerComponent("vrm",{
     schema: {
-        src: {type:"model"}
+        src: {type:"model"},
+        firstPerson:{default:false}
     },
     init() {
         this.loader.register( ( parser ) => {
@@ -31,7 +32,8 @@ AFRAME.registerComponent("vrm",{
     async update(oldData: any) {
         const data = this.data;
         const modelChanged = data.src != oldData.src;
-        console.log("update",data,oldData,modelChanged);
+        const firstPersonChanged = data.firstPerson != oldData.firstPerson;
+        //console.log("update",data,oldData,modelChanged);
 
         if(modelChanged){
             //clean previous model
@@ -40,8 +42,13 @@ AFRAME.registerComponent("vrm",{
             this.avatar = await this.loadModel(data.src);
             this.el.emit("loaded",this.avatar);
             if(this.avatar != null){
-                console.log(this.avatar)
+                //console.log(this.avatar)
             }
+        }
+
+        if(firstPersonChanged && this.avatar && this.avatar.firstPerson){
+            //console.log(this.avatar.firstPerson);
+            this.toggleLayer(data.firstPerson);
         }
     },
     tick(delta) {
@@ -65,23 +72,22 @@ AFRAME.registerComponent("vrm",{
         if(!path || path == "") return <VRM><unknown> undefined;
         const el = this.el;
         //test for the VRM environment to use
-
         const object3d = this.el.object3D;
         return new Promise((resolve,reject)=>{
             this.loader.load(path,(gltf:GLTF)=>{
-                    const vrm = gltf.userData.vrm;
-                    object3d.add( vrm.scene );
+                    const vrm:VRM = gltf.userData.vrm;
+                    this.el.setObject3D("avatar",vrm.scene)
+                    console.log(object3d)
                     VRMUtils.rotateVRM0( vrm ); // 読み込んだモデルがVRM0.0の場合は回す
+                    vrm.firstPerson?.setup();
                     resolve(vrm);
                 },
                 (e)=>{
                     //Handle loading events
                     el.emit("loading",e);
-                   //console.log( 'Loading model...', 100.0 * ( e.loaded / e.total ), '%' )
                 },
                 (e)=>{
                     el.emit("loading-error",e)
-                   // console.log(e);
                     reject(e);
                 }
             )
@@ -89,12 +95,32 @@ AFRAME.registerComponent("vrm",{
     },
     async removeModel(){
         if(!this.avatar) return;
-        //console.log(this.el.object3D, this.avatar);
-        this.el.object3D.remove(this.avatar.scene);
+        this.el.removeObject3D('avatar')
         VRMUtils.deepDispose(this.avatar.scene);
-        this.avatar = undefined as unknown as VRM;//.dispose(
-        // );
+        this.avatar = undefined as unknown as VRM;
     },
     avatar: undefined as unknown as VRM,
     loader: new GLTFLoader(),
+    isFirstPerson:false,
+    toggleLayer( set:boolean|undefined ) {
+        //code boilerplated from https://github.com/pixiv/three-vrm/blob/1.0/packages/three-vrm-core/examples/firstPerson.html
+        const camera = this.el.sceneEl?.camera;
+        if (!camera) return;
+
+        if ( typeof set === 'boolean' )  {
+            this.isFirstPerson = set;
+        } else {
+            this.isFirstPerson = !this.isFirstPerson;
+        }
+        if ( this.avatar && this.avatar.firstPerson ) {
+            const firstPerson = this.avatar.firstPerson;
+            if ( this.isFirstPerson ) {
+                camera.layers.enable( firstPerson.firstPersonOnlyLayer );
+                camera.layers.disable( firstPerson.thirdPersonOnlyLayer );
+            } else {
+                camera.layers.disable( firstPerson.firstPersonOnlyLayer );
+                camera.layers.enable( firstPerson.thirdPersonOnlyLayer );
+            }
+        }
+    },
 })

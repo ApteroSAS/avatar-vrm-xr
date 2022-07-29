@@ -21,22 +21,6 @@ export function loadMixamoAnimation( url:string, vrm:VRM ) {
 
         const clip = THREE.AnimationClip.findByName( asset.animations, 'mixamo.com' ); // Extraction de l'AnimationClip.
 
-        //console.log("asset : ",asset);
-        /*
-        const rootAssetBone:THREE.Bone = asset.children[0] as THREE.Bone;
-        let BonelistToParse:THREE.Bone[] = [rootAssetBone];
-        let BoneMap:Map<string,THREE.Bone> = new Map<string, THREE.Bone>();
-
-        while(BonelistToParse.length != 0){
-            BonelistToParse[0].children.forEach(child => {
-                BonelistToParse.push(child as THREE.Bone)
-            })
-            BoneMap.set(mixamoVRMRigMap[ BonelistToParse[0].name ],BonelistToParse[0] )
-            BonelistToParse.shift();
-        }*/
-
-        //console.log(BoneMap)
-
         const tracks:THREE.KeyframeTrack[] = []; // Le KeyframeTrack pour VRM est stocké dans ce tableau.
 
         clip.tracks.forEach( ( track ) => {
@@ -60,34 +44,7 @@ export function loadMixamoAnimation( url:string, vrm:VRM ) {
                              (vrm.meta?.version === '0' && (i % 2) === 0) ? -v : v
                         ))),
                     )
-                    /*
-                    const initialBone:THREE.Bone = BoneMap.get(vrmBoneName) as THREE.Bone
 
-                    //console.log("initial",initialQuaternion);
-
-                    const t = threetrack.values;
-
-                    //si t = 4, alors t is scale
-                    if(t.length != 4) {
-                        for (let i = 0; i <t.length; i+=4) {
-                            const q = new Quaternion(t[i],t[i+1],t[i+2],t[i+3])
-
-                            //console.log(q,initialQuaternion);
-
-                            //q.invert();
-
-                            //.multiply(initialQuaternion)
-
-                           // console.log(q);
-                          //  console.log(" ")
-                            t[i] = q.x;
-                            t[i+1] = q.y;
-                            t[i+2] = q.z;
-                            t[i+3] = q.w;
-
-                        }
-                    }
-                    */
                     //console.log(t)
                     tracks.push( threetrack );
                 }
@@ -106,8 +63,10 @@ export function loadMixamoAnimation( url:string, vrm:VRM ) {
                 }
             }
         } );
-        //console.log(tracks[1])
-        return new THREE.AnimationClip( 'vrmAnimation', clip.duration, tracks );
+
+        const animationName = url.substring(url.lastIndexOf('/')+1).split('.')[0].split(" ").join("-");
+
+        return new THREE.AnimationClip( animationName, clip.duration, tracks );
     } ).catch(
         reason =>  {
             //console.log(reason);

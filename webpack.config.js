@@ -20,7 +20,13 @@ const config = {
             }
         ]
     },
+    externals: {
+        'three': 'THREE'
+    },
     resolve: {
+        alias: {
+            'three': 'super-three'
+        },
         extensions: [
             '.tsx',
             '.ts',

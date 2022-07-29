@@ -8,28 +8,30 @@
 </head>
 <body>
 <a-scene>
+    <a-entity id="camera" camera look-controls orbit-controls="target:0 1 0;initialPosition:0 1 -2;enableKeys:false"></a-entity>
     <a-entity
-            vrm="src:./assets/avatar_VRM10.vrm;debug:true"
+            id="avatar"
+            vrm="src:./assets/avatar_VRM10.vrm"
             mixamo-2-vrm="animations:
-                ./assets/mixamo-animations/Male Locomotion Pack/idle.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/jump.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/left strafe.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/left strafe walk.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/left strafe walking.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/left turn.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/left turn 90.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/right strafe.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/right strafe walk.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/right strafe walking.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/right turn.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/right turn 90.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/running.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/walking.fbx,
-                ./assets/mixamo-animations/Male Locomotion Pack/xbot.fbx
+                ./assets/mixamo-animations/static pack/Hip Hop Dancing.fbx,
+                ./assets/mixamo-animations/static pack/idle.fbx,
+                ./assets/mixamo-animations/static pack/Jog Strafe Left.fbx,
+                ./assets/mixamo-animations/static pack/Jog Strafe Right.fbx,
+                ./assets/mixamo-animations/static pack/jump.fbx,
+                ./assets/mixamo-animations/static pack/Running.fbx,
+                ./assets/mixamo-animations/static pack/Walk Strafe Left.fbx,
+                ./assets/mixamo-animations/static pack/Walk Strafe Right.fbx,
+                ./assets/mixamo-animations/static pack/Walking.fbx,
+                ./assets/mixamo-animations/static pack/Walking Backwards.fbx;
+                InitAnimationMixer: true
             "
-    ></a-entity>
+            locomotion="camera:#camera;speed:0.0018;crossFadeDuration:0.4"
+    >
+        <a-box position="0 2.2 -1.3"></a-box>
+    </a-entity>
+
     <a-plane rotation="-90 0 0" color="#65affa" scale="2 2 2"></a-plane>
-    <a-entity camera look-controls orbit-controls="target:0 1 0;initialPosition:0 1 -2"></a-entity>
+
 </a-scene>
 </body>
 </html>
