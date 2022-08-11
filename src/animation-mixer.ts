@@ -35,17 +35,15 @@ AFRAME.registerComponent('animation-mixer', {
     },
 
     init: function () {
-        this.model = undefined;
-        this.mixer = undefined;
-        this.activeActions = [];
+        this.model = undefined as THREE.Mesh|undefined;
+        this.mixer = undefined as THREE.AnimationMixer|undefined;
+        this.activeActions = [] as Array<THREE.AnimationAction>;
 
         const model = this.el.getObject3D('mesh');
 
         if (model) {
-            console.log("direct load");
             this.load(model);
         } else {
-            console.log("wait for loading")
             this.el.addEventListener('model-loaded', (e) => {
                 // @ts-ignore
                 this.load(e.detail.model);
@@ -76,8 +74,6 @@ AFRAME.registerComponent('animation-mixer', {
         const data = this.data;
         const changes = AFRAME.utils.diff(data, prevData);
 
-        console.log("update",changes,data.clip)
-
         // If selected clips have changed, restart animation.
         if ('clip' in changes) {
             this.stopAction();
@@ -105,8 +101,6 @@ AFRAME.registerComponent('animation-mixer', {
 
     stopAction: function () {
         const data = this.data;
-
-        console.log("stopAction")
         for (let i = 0; i < this.activeActions.length; i++) {
             data.crossFadeDuration
                 ? this.activeActions[i].fadeOut(data.crossFadeDuration)
@@ -128,19 +122,18 @@ AFRAME.registerComponent('animation-mixer', {
 
         for (let clip, i = 0; (clip = clips[i]); i++) {
             if (clip.name.match(re)) {
-                console.log("playAction",clip.name)
                 const action = this.mixer.clipAction(clip, model);
 
                 action.enabled = true;
                 action.clampWhenFinished = data.clampWhenFinished;
                 if (data.duration) action.setDuration(data.duration);
                 if (data.timeScale !== 1) action.setEffectiveTimeScale(data.timeScale);
+                this.mixer.setTime(data.startFrame / 1000);
                 // @ts-ignore
                 action.setLoop(LoopMode[data.loop], data.repetitions)
                     .fadeIn(data.crossFadeDuration)
                     .play();
                 this.activeActions.push(action);
-                this.mixer.setTime(data.startFrame / 1000);
                 console.log("fin setup animation")
             }
         }

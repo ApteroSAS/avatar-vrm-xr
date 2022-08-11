@@ -68,7 +68,7 @@ AFRAME.registerComponent("locomotion",{
             this.data.camera = this.el.sceneEl?.camera?.el
         }
     },
-    tick(time, timeDelta) {
+    tick(time, timeDelta)  {
         if(this.el.components["animation-mixer"] == undefined)return;
 
         const sensitivity = 0.3
@@ -193,10 +193,11 @@ AFRAME.registerComponent("locomotion",{
             this.data.camera = this.el.sceneEl?.camera.el
         }
 
+        const cfd = this.data.crossFadeDuration*1000;
         if (this.isMoving) {
+
             if(this.startTimer == -1){
-                this.startTimer = this.currentSpeed/this.speed;
-                console.log("go")
+                this.startTimer = this.currentSpeed == 0 ? 0 : this.speed/this.currentSpeed*cfd;
 
                 this.el.setAttribute('animation-mixer', {
                     clip: 'Walking',
@@ -204,39 +205,37 @@ AFRAME.registerComponent("locomotion",{
                     crossFadeDuration: this.data.crossFadeDuration,
                 })
             }
-            if(this.startTimer <= (this.data.crossFadeDuration*1000)){
-                this.startTimer+=(timeDelta/1000)
-                this.currentSpeed = MathUtils.lerp(this.currentSpeed,this.speed, this.startTimer * (1/(this.data.crossFadeDuration*1000)))
+
+            if(this.startTimer <= cfd){
+                this.startTimer+=timeDelta
+                this.currentSpeed = MathUtils.lerp(this.currentSpeed,this.speed, this.startTimer * (1/cfd))
             }
             else {
                 this.currentSpeed = this.speed;
             }
             this.stopTimer = -1;
 
-
         }
         else {
             if(this.stopTimer === -1){
-                this.stopTimer = this.currentSpeed-this.speed/-this.speed;
+                this.stopTimer = (this.speed - this.currentSpeed) == 0 ? 0 : this.speed/(this.speed - this.currentSpeed)*cfd;
                 this.el.setAttribute('animation-mixer', {
                     clip: 'idle',
                     //loop: 'repeat',
                     crossFadeDuration: this.data.crossFadeDuration,
                 })
             }
-            if(this.stopTimer <= (this.data.crossFadeDuration*1000)){
-                this.stopTimer+=(timeDelta/1000)
-                this.currentSpeed = MathUtils.lerp(this.currentSpeed,0, this.stopTimer * (1/(this.data.crossFadeDuration*1000)))
+
+            if(this.stopTimer <= cfd){
+                this.stopTimer+=timeDelta
+                this.currentSpeed = MathUtils.lerp(this.currentSpeed,0, this.stopTimer * (1/cfd))
             }
             else {
                 this.currentSpeed = 0;
             }
             this.startTimer = -1
 
-
-
         }
-
 
         const camY = this.data.camera.object3D.rotation.y  // get y rot of camera
         this.joystickRot = Math.atan2(this.forward, this.side)
