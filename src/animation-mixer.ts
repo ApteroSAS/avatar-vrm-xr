@@ -1,8 +1,6 @@
 //original code : https://github.com/n5ro/aframe-extras/blob/master/src/loaders/animation-mixer.js
 import {Object3D, Quaternion, Vector3} from "three";
 import {Component, THREE} from "aframe";
-import {VRM} from "@pixiv/three-vrm";
-import {GLTFLoader} from "three/examples/jsm/loaders/GLTFLoader";
 
 const LoopMode = {
     once: THREE.LoopOnce,
@@ -15,6 +13,7 @@ export interface animationMixerComponent extends Component {
     mixer:THREE.AnimationMixer|undefined,
     activeActions: Array<THREE.AnimationAction>,
 }
+
 /**
  * animation-mixer
  *
@@ -134,7 +133,6 @@ AFRAME.registerComponent('animation-mixer', {
                     .fadeIn(data.crossFadeDuration)
                     .play();
                 this.activeActions.push(action);
-                console.log("fin setup animation")
             }
         }
     },

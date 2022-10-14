@@ -4,16 +4,13 @@ Toogle animations based on input
 Animations use mixamo default asset pack naming convention
  */
 import {VRMComponent} from "./vrm";
-import {AnimationClip, Vector3, XRSession, MathUtils} from "three";
+import {AnimationClip, Vector3, MathUtils} from "three";
 import {animationMixerComponent} from "./animation-mixer";
 
 AFRAME.registerComponent("locomotion",{
     events:{
         'model-loaded': (e: any) => {
-            console.log(e)
             const vrmComponent: VRMComponent = <VRMComponent> e.target.components.vrm;
-            console.log(vrmComponent.avatar)
-            console.log(vrmComponent?.avatar?.humanoid?.restPose?.hips?.position)
             e.target.components.locomotion.originalPosition = new Vector3(...(vrmComponent?.avatar?.humanoid?.restPose?.hips?.position as Array<number>));
         }
     },
@@ -23,7 +20,7 @@ AFRAME.registerComponent("locomotion",{
         // handle movement if camera attached to model or distant
         cameraMode:{ default: 'distant', oneOf: ['attached','distant'] },
         //Duration in seconds of transition between animations
-        crossFadeDuration :{default: 0.4}
+        crossFadeDuration :{default: 0}
     },
     init() {
 
@@ -69,6 +66,7 @@ AFRAME.registerComponent("locomotion",{
         }
     },
     tick(time, timeDelta)  {
+
         if(this.el.components["animation-mixer"] == undefined)return;
 
         const sensitivity = 0.3
@@ -81,8 +79,7 @@ AFRAME.registerComponent("locomotion",{
                     if (this.vrType === 'controllers' && this.el.sceneEl?.xrSession.inputSources.length > 0) {
                         // @ts-ignore
                         const controllers:XRSession.inputSources = Array.from(this.el.sceneEl?.xrSession.inputSources)
-                        let vrLeftVert; let
-                            vrLeftHoriz
+                        let vrLeftVert, vrLeftHoriz
                         // left thumbstick controls character
                         for (let i = 0; i < controllers.length; i++) {
                             if (controllers[i].handedness === 'left') {
@@ -95,9 +92,6 @@ AFRAME.registerComponent("locomotion",{
                         if (vrLeftVert > sensitivity || vrLeftVert < -sensitivity || vrLeftHoriz < -sensitivity || vrLeftHoriz > sensitivity) {
                             this.forward = -Math.min(Math.max(-1, vrLeftVert), 1)
                             this.side = -Math.min(Math.max(-1, vrLeftHoriz), 1)
-                            this.isMoving = true
-                        } else {
-                            this.isMoving = false
                         }
                     }
                     break
@@ -109,65 +103,72 @@ AFRAME.registerComponent("locomotion",{
                         if (gamepadLeftVert > sensitivity || gamepadLeftVert < -sensitivity || gamepadLeftHoriz < -sensitivity || gamepadLeftHoriz > sensitivity) {
                             this.forward = -Math.min(Math.max(-1, gamepadLeftVert), 1)
                             this.side = -Math.min(Math.max(-1, gamepadLeftHoriz), 1)
-                            this.isMoving = true
-                        } else {
-                            this.isMoving = false
                         }
                     }
                     break
                 case 'keyboard':
-                    if (!this.fwd && !this.back && !this.left && !this.right) {
+                    if (!this.keyForward && !this.keyBack && !this.keyLeft && !this.keyRight) {
                         this.usingKeyboard = false
-                        this.isMoving = false
                         return
                     }
+                    this.forward = 0;
+                    this.side = 0;
+                    //right - left + forward + backward -
+
+                    if(this.keyForward != this.keyBack){
+                        this.forward = this.keyForward ? 1 : -1
+                    }
+                    if(this.keyLeft != this.keyRight){
+                        this.side = this.keyRight ? 1 : -1
+                    }
+
+                    /*
                     // diagonal controls
-                    if (this.fwd && this.left) {
+                    if (this.keyForward && this.keyLeft) {
                         this.forward = -Math.min(Math.max(-1, -1), 1)
                         this.side = -Math.min(Math.max(-1, -1), 1)
                     }
-                    if (this.fwd && this.right) {
+
+
+                    if (this.keyForward && this.keyRight) {
                         this.forward = -Math.min(Math.max(-1, -1), 1)
                         this.side = -Math.min(Math.max(-1, 1), 1)
                     }
-                    if (this.back && this.left) {
+                    if (this.keyBack && this.keyLeft) {
                         this.forward = -Math.min(Math.max(-1, 1), 1)
                         this.side = -Math.min(Math.max(-1, -1), 1)
                     }
-                    if (this.back && this.right) {
+                    if (this.keyBack && this.keyRight) {
                         this.forward = -Math.min(Math.max(-1, 1), 1)
                         this.side = -Math.min(Math.max(-1, 1), 1)
                     }
                     // cardinal controls
-                    if (this.fwd && !this.left && !this.right) {
+                    if (this.keyForward && !this.keyLeft && !this.keyRight) {
                         this.forward = -Math.min(Math.max(-1, -1), 1)
                         this.side = 0
                     }
-                    if (this.back && !this.left && !this.right) {
+                    if (this.keyBack && !this.keyLeft && !this.keyRight) {
                         this.forward = -Math.min(Math.max(-1, 1), 1)
                         this.side = 0
                     }
-                    if (this.left && !this.fwd && !this.back) {
+                    if (this.keyLeft && !this.keyForward && !this.keyBack) {
                         this.forward = 0
                         this.side = -Math.min(Math.max(-1, -1), 1)
                     }
-                    if (this.right && !this.fwd && !this.back) {
+                    if (this.keyRight && !this.keyForward && !this.keyBack) {
                         this.forward = 0
                         this.side = -Math.min(Math.max(-1, 1), 1)
                     }
-                    this.isMoving = true
+                    */
                     break
                 default:
                     // touch input
                     if (this.offsetY > sensitivity || this.offsetY < -sensitivity || this.offsetX < -sensitivity || this.offsetX > sensitivity) {
                         this.forward = -Math.min(Math.max(-1, this.offsetY), 1)
                         this.side = -Math.min(Math.max(-1, this.offsetX), 1)
-                        this.isMoving = true
-                    }
-                    else {
-                        this.isMoving = false
                     }
             }
+
         }
 
         if (this.hasGamepad === true) {
@@ -186,6 +187,8 @@ AFRAME.registerComponent("locomotion",{
         if (this.usingKeyboard === true) {
             inputCheck('keyboard')
         }
+
+        const isMoving = !(this.forward == this.side && this.side == 0);
         /// ////////////////////////////// CHARACTER MOVEMENT //////////////////////////////////
 
         if(!this.data.camera) {
@@ -193,48 +196,47 @@ AFRAME.registerComponent("locomotion",{
             this.data.camera = this.el.sceneEl?.camera.el
         }
 
-        const cfd = this.data.crossFadeDuration*1000;
-        if (this.isMoving) {
-
-            if(this.startTimer == -1){
-                this.startTimer = this.currentSpeed == 0 ? 0 : this.speed/this.currentSpeed*cfd;
-
-                this.el.setAttribute('animation-mixer', {
-                    clip: 'Walking',
-                    //loop: 'repeat',
-                    crossFadeDuration: this.data.crossFadeDuration,
-                })
+        //Animation
+        if (isMoving) {
+            //right - left + forward + backward -
+            let clip:string = "";
+            if(this.forward!=0 && this.side != 0){
+                if(this.forward > 0){
+                    if(this.side > 0)
+                        clip = "Walk Strafe Left"
+                    else clip = "Walk Strafe Right"
+                }
+                else {
+                    clip = "Walking Backwards"
+                }
+            }
+            else if(this.forward != 0 ){
+                if(this.forward > 0){
+                    clip = "Walking"
+                }
+                else {
+                    clip = "Walking Backwards"
+                }
+            } else if ( this.side != 0){
+                if(this.side > 0)
+                    clip = "Walk Strafe Left"
+                else clip = "Walk Strafe Right"
             }
 
-            if(this.startTimer <= cfd){
-                this.startTimer+=timeDelta
-                this.currentSpeed = MathUtils.lerp(this.currentSpeed,this.speed, this.startTimer * (1/cfd))
-            }
-            else {
-                this.currentSpeed = this.speed;
-            }
-            this.stopTimer = -1;
 
+
+            const value:any = {
+                clip
+            }
+            if(this.data.crossFadeDuration != 0) value.crossFadeDuration = this.data.crossFadeDuration;
+            this.el.setAttribute('animation-mixer', value)
         }
         else {
-            if(this.stopTimer === -1){
-                this.stopTimer = (this.speed - this.currentSpeed) == 0 ? 0 : this.speed/(this.speed - this.currentSpeed)*cfd;
-                this.el.setAttribute('animation-mixer', {
-                    clip: 'idle',
-                    //loop: 'repeat',
-                    crossFadeDuration: this.data.crossFadeDuration,
-                })
+            const value:any = {
+                clip: 'idle'
             }
-
-            if(this.stopTimer <= cfd){
-                this.stopTimer+=timeDelta
-                this.currentSpeed = MathUtils.lerp(this.currentSpeed,0, this.stopTimer * (1/cfd))
-            }
-            else {
-                this.currentSpeed = 0;
-            }
-            this.startTimer = -1
-
+            if(this.data.crossFadeDuration != 0) value.crossFadeDuration = this.data.crossFadeDuration;
+            this.el.setAttribute('animation-mixer', value)
         }
 
         const camY = this.data.camera.object3D.rotation.y  // get y rot of camera
@@ -251,16 +253,16 @@ AFRAME.registerComponent("locomotion",{
     },
     handleKeyDown(e:any){
         if (e.key === 'ArrowUp' || e.code === 'KeyW') {
-            this.fwd = true
+            this.keyForward = true
         }
         if (e.key === 'ArrowDown' || e.code === 'KeyS') {
-            this.back = true
+            this.keyBack = true
         }
         if (e.key === 'ArrowLeft' || e.code === 'KeyA') {
-            this.left = true
+            this.keyLeft = true
         }
         if (e.key === 'ArrowRight' || e.code === 'KeyD') {
-            this.right = true
+            this.keyRight = true
         }
         if (!this.usingKeyboard) {
             this.usingKeyboard = true
@@ -268,16 +270,16 @@ AFRAME.registerComponent("locomotion",{
     },
     handleKeyUp(e:any){
         if (e.key === 'ArrowUp' || e.code === 'KeyW') {
-            this.fwd = false
+            this.keyForward = false
         }
         if (e.key === 'ArrowDown' || e.code === 'KeyS') {
-            this.back = false
+            this.keyBack = false
         }
         if (e.key === 'ArrowLeft' || e.code === 'KeyA') {
-            this.left = false
+            this.keyLeft = false
         }
         if (e.key === 'ArrowRight' || e.code === 'KeyD') {
-            this.right = false
+            this.keyRight = false
         }
     },
     usingKeyboard:false as boolean,
@@ -285,11 +287,10 @@ AFRAME.registerComponent("locomotion",{
     currentPosition:new Vector3(0,0,0),
     hasGamepad: false,
     isInHeadset:false,
-    isMoving:false,
-    fwd:false,
-    back:false,
-    left:false,
-    right:false,
+    keyForward:false,
+    keyBack:false,
+    keyLeft:false,
+    keyRight:false,
     forward:0,
     side:0,
     speed:0,

@@ -23,7 +23,6 @@ AFRAME.registerComponent("mixamo-2-vrm",{
                     await this.loadAnimation(animation)
                 }
             }
-            console.log(this);
             if(this.el.components['animation-mixer']||this.data.InitAnimationMixer){
                 this.el.setAttribute("animation-mixer",{
                     clip:this.data.defaultAnimation,
