@@ -39,10 +39,10 @@ export function loadMixamoAnimation( url:string, vrm:VRM ) {
 
                     const threetrack = new THREE.QuaternionKeyframeTrack(
                         `${ vrmNodeName }.${ propertyName }`,
-                        Array.from(track.times),
-                        Array.from(track.values.map( ( v, i ) => (
+                        track.times,
+                        track.values.map( ( v, i ) => (
                              (vrm.meta?.version === '0' && (i % 2) === 0) ? -v : v
-                        ))),
+                        )),
                     )
 
                     //console.log(t)
@@ -52,10 +52,10 @@ export function loadMixamoAnimation( url:string, vrm:VRM ) {
                     //console.log("vector ",vrmNodeName)
                     const threetrack = new THREE.VectorKeyframeTrack(
                         `${ vrmNodeName }.${ propertyName }`,
-                        Array.from(track.times),
-                        Array.from(track.values.map( ( v, i ) => (
+                        track.times,
+                        track.values.map( ( v, i ) => (
                             ( ( vrm.meta?.version === '0' && ( i % 3 ) !== 1 ) ? -v : v ) * 0.01
-                        ))),
+                        )),
                     )
                     //const initialBone:THREE.Bone = BoneMap.get(vrmBoneName) as THREE.Bone
                     //console.log(threetrack,initialBone)
